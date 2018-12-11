@@ -34,5 +34,12 @@ def get_device_info
 end
 
 def lookup(key)
-  $lookup_table[key] || key
+  parts = key.split("::")
+  res = parts.reduce($lookup_table) do |hsh, part|
+    return key unless hsh.is_a? Hash
+    return key unless hsh.key? part
+    hsh[part]
+  end
+  return key unless res.is_a? String
+  res
 end
