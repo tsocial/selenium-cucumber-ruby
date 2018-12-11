@@ -8,7 +8,23 @@ $os_version = ENV['OS_VERSION']
 $device_name = ENV['DEVICE_NAME']
 $udid = ENV['UDID']
 $app_path = ENV['APP_PATH']
-$lookup_table = YAML.load(File.open(File.join(File.dirname(__FILE__), '../variables.yaml')))
+
+# lookup all files with the name pattern *_variables.yaml
+$lookup_table = {}
+Dir.glob(File.join(File.dirname(__FILE__), '..', '*variables.yaml')) do |fpath|
+  fname = File.basename(fpath, '.yaml')
+  unless fname.end_with? '_variables'
+    next
+  end
+  parts = fname.split('_variables')
+  key = parts.first
+  vars = YAML.load(File.open(fpath))
+  if key
+    $lookup_table[key] = vars
+  else
+    $lookup_table.merge!(vars)
+  end
+end
 
 # check for valid parameters
 validate_parameters $platform, $browser_type, $app_path
